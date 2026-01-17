@@ -68,11 +68,11 @@ def generate_documents(book_title, all_scenes):
     return to_stream(doc1), to_stream(doc2), to_stream(doc3)
 
 # --- 4. UI LOGIC ---
-st.title("OutPaged Scene Generator (Flash Edition)")
+st.title("OutPaged Scene Generator (OpenAI Edition)")
 
 # Secrets Logic
 try:
-    secret_key = st.secrets["GEMINI_API_KEY"]
+    secret_key = st.secrets["OPENAI_API_KEY"]
 except:
     secret_key = None
 
@@ -83,7 +83,7 @@ with st.sidebar:
         st.success("✅ Key loaded from Secrets")
         api_key = secret_key
     else:
-        api_key = st.text_input("Gemini API Key", type="password")
+        api_key = st.text_input("OpenAI API Key", type="password")
 
 # File Upload
 uploaded_file = st.file_uploader("Upload EPUB", type=["epub"])
@@ -112,7 +112,7 @@ if uploaded_file:
                 all_scenes.extend(scenes)
                 
         if not all_scenes:
-            st.error("No scenes were generated. Check for model errors above.")
+            st.error("No scenes were generated. Check for errors above.")
         else:
             st.success(f"Success! {len(all_scenes)} scenes found.")
             d1, d2, d3 = generate_documents(title, all_scenes)
