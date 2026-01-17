@@ -48,33 +48,26 @@ def generate_system_prompt(book_title: str) -> str:
 
 # --- ANALYZER ---
 def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> Tuple[List[Scene], str]:
-    """
-    Returns a tuple: (List of Scenes, Error Message)
-    If successful, Error Message is None.
-    """
     try:
         genai.configure(api_key=api_key)
         
-        # Using 1.5 Pro for best results
+        # SWITCHED TO FLASH: This is the high-speed, widely available model
         model = genai.GenerativeModel(
-            'gemini-1.5-pro', 
+            'gemini-1.5-flash', 
             generation_config={"response_mime_type": "application/json"}
         )
         
         system_instructions = generate_system_prompt(book_title)
-        user_prompt = f"{system_instructions}\n\nAnalyze this text:\n\n{text_chunk[:40000]}"
+        user_prompt = f"{system_instructions}\n\nAnalyze this text:\n\n{text_chunk[:45000]}"
         
-        # Call API
         response = model.generate_content(user_prompt)
         
-        # Parse Logic
         try:
             data = json.loads(response.text)
             structured_data = ChapterOutput(**data)
         except Exception as json_err:
-            return [], f"AI returned bad JSON: {json_err}"
+            return [], f"AI Output Error: {json_err}"
 
-        # Add Negative Prompts
         for scene in structured_data.scenes:
             if not hasattr(scene.skybox_environment, 'negative_prompt'):
                 scene.skybox_environment.negative_prompt = SKYBOX_NEGATIVE_PROMPT
@@ -82,4 +75,5 @@ def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> T
         return structured_data.scenes, None
 
     except Exception as e:
+        # If this fails, we return the error string so the UI can show it
         return [], str(e)
