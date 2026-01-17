@@ -1,8 +1,7 @@
 import json
-import typing_extensions as typing
 import google.generativeai as genai
 from typing import List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 # --- 1. CONFIGURATION ---
 
@@ -42,7 +41,7 @@ def generate_system_prompt(book_title: str) -> str:
     YOUR GOAL: Deep read the provided text and extract the most exciting cinematic moments for Augmented Reality.
     
     RULES FOR SCENE SELECTION:
-    1. Minimum Coverage: Find at least TWO scenes in this text chunk.
+    1. Minimum Coverage: Find at least THREE (3) scenes in this text chunk. We need high density.
     2. Epic Scaling: If the text contains high drama, big reveals, or spectacle, generate as many scenes as needed.
     3. No Duplicates: No two scenes can share the same trigger sentence.
     
@@ -66,7 +65,7 @@ def generate_system_prompt(book_title: str) -> str:
     }}
     """
 
-# --- 4. PRODUCTION ANALYZER (GEMINI 2.0) ---
+# --- 4. PRODUCTION ANALYZER (GEMINI) ---
 
 def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> List[Scene]:
     """
@@ -75,16 +74,16 @@ def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> L
     # Configure the API
     genai.configure(api_key=api_key)
     
-    # UPDATED: Using the latest model identifier. 
-    # If 2.5 is not yet publicly aliased, use 'gemini-2.0-flash-exp' or 'gemini-1.5-pro-latest'
-    # Change the string below if your specific API key has access to a different model name.
+    # Use the stable 1.5 Pro model. 
+    # If you want to use the experimental flash model, change this to 'gemini-2.0-flash-exp'
     model = genai.GenerativeModel(
-        'gemini-1.5-pro', # Or 'gemini-2.0-flash' if available to your account
+        'gemini-1.5-pro-latest', 
         generation_config={"response_mime_type": "application/json"}
     )
     
     system_instructions = generate_system_prompt(book_title)
-    user_prompt = f"{system_instructions}\n\nAnalyze this text chunk:\n\n{text_chunk[:30000]}"
+    # We increase the chunk limit slightly to ensure we capture full chapters
+    user_prompt = f"{system_instructions}\n\nAnalyze this text chunk:\n\n{text_chunk[:45000]}"
     
     try:
         response = model.generate_content(user_prompt)
