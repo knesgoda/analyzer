@@ -5,7 +5,6 @@ st.set_page_config(page_title="OutPaged Scene Generator", layout="wide")
 
 import io
 import warnings
-# Silence generic warnings
 warnings.filterwarnings("ignore")
 
 from docx import Document
@@ -45,6 +44,7 @@ def generate_documents(book_title, all_scenes):
         # Doc 1
         doc1.add_heading(f"Scene {idx:02}: {scene.location}", level=2)
         doc1.add_paragraph(f"Trigger: {scene.trigger_sentence}")
+        doc1.add_paragraph(f"Page: N/A")
         
         # Doc 2
         neg = getattr(scene.skybox_environment, 'negative_prompt', analyzer.SKYBOX_NEGATIVE_PROMPT)
@@ -68,7 +68,7 @@ def generate_documents(book_title, all_scenes):
     return to_stream(doc1), to_stream(doc2), to_stream(doc3)
 
 # --- 4. UI LOGIC ---
-st.title("OutPaged Scene Generator (Clean Slate)")
+st.title("OutPaged Scene Generator (Flash Edition)")
 
 # Secrets Logic
 try:
@@ -80,7 +80,7 @@ except:
 with st.sidebar:
     st.header("Setup")
     if secret_key:
-        st.success("Key loaded from Secrets")
+        st.success("✅ Key loaded from Secrets")
         api_key = secret_key
     else:
         api_key = st.text_input("Gemini API Key", type="password")
@@ -108,12 +108,11 @@ if uploaded_file:
             
             if error:
                 st.error(f"Chapter {i+1} Failed: {error}")
-                # We do NOT stop, we try the next chapter
             else:
                 all_scenes.extend(scenes)
                 
         if not all_scenes:
-            st.error("No scenes were generated. Check the error messages above.")
+            st.error("No scenes were generated. Check for model errors above.")
         else:
             st.success(f"Success! {len(all_scenes)} scenes found.")
             d1, d2, d3 = generate_documents(title, all_scenes)
