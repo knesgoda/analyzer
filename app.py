@@ -5,36 +5,12 @@ from docx import Document
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
-
-# IMPORT THE GEMINI ANALYZER MODULE
 import analyzer 
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="OutPaged Scene Generator", layout="wide")
 
-# --- CORE DATA STRUCTURES RE-MAPPED ---
-class SimpleCharacter:
-    def __init__(self, name, role, visual_description):
-        self.name = name
-        self.role = role
-        self.visual_description = visual_description
-
-class SimpleSkybox:
-    def __init__(self, visual_prompt, environment_type, negative_prompt):
-        self.visual_prompt = visual_prompt
-        self.environment_type = environment_type
-        self.negative_prompt = negative_prompt
-
-class SimpleScene:
-    def __init__(self, location, chapter_beat, trigger_sentence, characters, skybox_environment):
-        self.location = location
-        self.chapter_beat = chapter_beat
-        self.trigger_sentence = trigger_sentence
-        self.characters = characters 
-        self.skybox_environment = skybox_environment
-
 # --- EPUB LOGIC ---
-
 def parse_epub(uploaded_file):
     """
     Parses the EPUB and extracts the Title and Chapter Content.
@@ -68,7 +44,6 @@ def parse_epub(uploaded_file):
     return book_title, chapters
 
 # --- DOCUMENT GENERATOR ---
-
 def generate_documents(book_title, all_scenes):
     doc1 = Document()
     doc2 = Document()
@@ -93,7 +68,6 @@ def generate_documents(book_title, all_scenes):
         p = doc1.add_paragraph(); p.add_run("Page number: ").bold = True; p.add_run("N/A")
         
         # DOC 2: Backgrounds
-        # Ensure negative prompt exists (fallback to constant if missing)
         neg_prompt = getattr(scene.skybox_environment, 'negative_prompt', analyzer.SKYBOX_NEGATIVE_PROMPT)
         
         doc2.add_heading(f"Scene {global_idx:02} - {scene.location} - {scene.chapter_beat}", level=2)
@@ -108,7 +82,6 @@ def generate_documents(book_title, all_scenes):
         main_chars = [c for c in scene.characters if c.role == "Main"]
         other_chars = [c for c in scene.characters if c.role != "Main"]
         
-        # Fallback: if AI didn't tag "Main", assume first character is Main
         if not main_chars and scene.characters:
             main_chars = [scene.characters[0]]
             other_chars = scene.characters[1:]
@@ -141,35 +114,41 @@ def generate_documents(book_title, all_scenes):
 st.title("OutPaged Scene Pack Generator")
 st.markdown("Automated EPUB ingestion and Scene Pack generation (Production Mode).")
 
-# Session State for Title persistence
+# 1. Initialize Session State for Title
 if 'detected_title' not in st.session_state:
     st.session_state['detected_title'] = "Waiting for file..."
 
-with st.sidebar:
-    st.header("Configuration")
-    
-    # API Key is now mandatory and prominent
-    api_key = st.text_input("Google Gemini API Key", type="password")
-    
-    # Title field listens to session state
-    book_title = st.text_input("Book Title", key='detected_title')
-    
-    st.info("Upload an EPUB to begin.")
-
+# 2. Upload File (We do this BEFORE the sidebar input so we can update the state if needed)
 uploaded_file = st.file_uploader("Upload EPUB", type=["epub"])
 
 if uploaded_file:
-    # Auto-Parse on upload
-    detected_title, chapters = parse_epub(uploaded_file)
+    # Only parse if we haven't already processed this specific file upload
+    # (Streamlit re-runs the whole script on interaction, so we check if the title needs updating)
+    if st.session_state['detected_title'] == "Waiting for file...":
+        detected_title, chapters = parse_epub(uploaded_file)
+        if detected_title != "Unknown Title":
+            st.session_state['detected_title'] = detected_title
+            st.rerun() # Restart the script immediately to populate the sidebar correctly
+
+# 3. Sidebar Configuration
+with st.sidebar:
+    st.header("Configuration")
     
-    # Update title in session state if it hasn't been set yet
-    if st.session_state['detected_title'] == "Waiting for file..." and detected_title != "Unknown Title":
-        st.session_state['detected_title'] = detected_title
-        st.rerun() # Refresh to show new title in sidebar
+    api_key = st.text_input("Google Gemini API Key", type="password")
+    
+    # FIX: We removed key='detected_title' to prevent the crash.
+    # We set the default value from state, but capture the user's edit in a new variable.
+    book_title = st.text_input("Book Title", value=st.session_state['detected_title'])
+    
+    st.info("Upload an EPUB to begin.")
 
-    st.success(f"Loaded '{detected_title}' ({len(chapters)} Processable Chapters)")
+# 4. Main Execution Logic
+if uploaded_file and book_title != "Waiting for file...":
+    # Re-parse quickly to get chapters (cached in memory usually, but fast enough to redo)
+    _, chapters = parse_epub(uploaded_file)
+    
+    st.success(f"Ready to process '{book_title}' ({len(chapters)} Chapters)")
 
-    # The Big Red Button
     if st.button("Generate Scene Pack"):
         if not api_key:
             st.error("⚠️ Stop! You must provide a Google Gemini API Key to proceed.")
@@ -178,9 +157,7 @@ if uploaded_file:
             progress_bar = st.progress(0)
             status_text = st.empty()
             
-            # --- THE LOOP ---
             for i, chapter_text in enumerate(chapters):
-                # Update UI
                 progress = (i + 1) / len(chapters)
                 progress_bar.progress(progress)
                 status_text.text(f"Analyzing Chapter {i+1}/{len(chapters)}...")
@@ -189,13 +166,11 @@ if uploaded_file:
                 chapter_scenes = analyzer.analyze_chapter_content(api_key, chapter_text, book_title)
                 all_scenes.extend(chapter_scenes)
             
-            # --- FINISH ---
             status_text.text("Compiling Documents...")
             d1, d2, d3 = generate_documents(book_title, all_scenes)
             
             st.success(f"Production Run Complete! Generated {len(all_scenes)} scenes.")
             
-            # Download Columns
             c1, c2, c3 = st.columns(3)
             file_prefix = book_title.replace(" ", "_")
             
