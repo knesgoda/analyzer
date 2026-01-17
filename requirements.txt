@@ -3,3 +3,4 @@ python-docx
 EbookLib
 beautifulsoup4
 pydantic
+google-generativeai
