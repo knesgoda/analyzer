@@ -3,16 +3,14 @@ import google.generativeai as genai
 from typing import List
 from pydantic import BaseModel, Field
 
-# --- 1. CONFIGURATION ---
-
+# --- CONFIGURATION ---
 SKYBOX_NEGATIVE_PROMPT = (
     "people, person, faces, crowds, animals, text, letters, signage, "
     "watermark, logo, UI, placeable props, furniture, vehicles, "
     "modern objects, anachronistic items, blurry"
 )
 
-# --- 2. DATA MODELS ---
-
+# --- DATA MODELS ---
 class Character(BaseModel):
     name: str = Field(..., description="Name of the character")
     role: str = Field(..., description="Role in scene: 'Main' or 'Secondary'")
@@ -32,8 +30,7 @@ class Scene(BaseModel):
 class ChapterOutput(BaseModel):
     scenes: List[Scene]
 
-# --- 3. PROMPT ENGINEERING ---
-
+# --- PROMPT ---
 def generate_system_prompt(book_title: str) -> str:
     return f"""
     You are the Cinematic Director for the AR project: "{book_title} | AR Scene Pack | Outputs v1".
@@ -65,18 +62,12 @@ def generate_system_prompt(book_title: str) -> str:
     }}
     """
 
-# --- 4. PRODUCTION ANALYZER (DEBUG MODE) ---
-
+# --- ANALYZER ---
 def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> List[Scene]:
-    """
-    Executes the analysis using Google Gemini.
-    CRASHES LOUDLY IF ERROR OCCURS (No Try/Except)
-    """
-    # Configure the API
+    # Configure API
     genai.configure(api_key=api_key)
     
-    # SAFEST MODEL for testing connectivity. 
-    # Once this works, we can try 'gemini-2.0-flash-exp'
+    # Using 1.5 Pro for stability.
     model = genai.GenerativeModel(
         'gemini-1.5-pro', 
         generation_config={"response_mime_type": "application/json"}
@@ -85,17 +76,15 @@ def analyze_chapter_content(api_key: str, text_chunk: str, book_title: str) -> L
     system_instructions = generate_system_prompt(book_title)
     user_prompt = f"{system_instructions}\n\nAnalyze this text chunk:\n\n{text_chunk[:45000]}"
     
-    # DIRECT CALL - If this fails, the App will show the RED ERROR on screen
+    # We allow the error to bubble up so Streamlit shows it (No try/except)
     response = model.generate_content(user_prompt)
     
-    # Parse JSON
+    # Parse
     raw_json = response.text
     data = json.loads(raw_json)
-    
-    # Validation
     structured_data = ChapterOutput(**data)
     
-    # Post-process: Inject negative prompts
+    # Add Negative Prompts
     for scene in structured_data.scenes:
         if not hasattr(scene.skybox_environment, 'negative_prompt'):
             scene.skybox_environment.negative_prompt = SKYBOX_NEGATIVE_PROMPT
