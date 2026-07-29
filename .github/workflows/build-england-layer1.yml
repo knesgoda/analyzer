@@ -30,6 +30,9 @@ jobs:
       - name: Inspect official ONS IPN archive
         run: python scripts/inspect_ipn_archive.py
 
+      - name: Profile England IPN descriptors
+        run: python scripts/analyze_ipn_england.py
+
       - name: Install coordinate conversion dependency
         run: python -m pip install --disable-pip-version-check pyproj==3.7.1
 
