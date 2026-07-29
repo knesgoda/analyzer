@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Inspect official ONS IPN source
+        run: python scripts/inspect_ipn_source.py
+
       - name: Install coordinate conversion dependency
         run: python -m pip install --disable-pip-version-check pyproj==3.7.1
 
