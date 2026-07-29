@@ -33,6 +33,9 @@ jobs:
       - name: Profile England IPN descriptors
         run: python scripts/analyze_ipn_england.py
 
+      - name: Analyze canonical IPN identities
+        run: python scripts/analyze_ipn_identity.py
+
       - name: Install coordinate conversion dependency
         run: python -m pip install --disable-pip-version-check pyproj==3.7.1
 
