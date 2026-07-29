@@ -1,0 +1,62 @@
+{
+  "rows_scanned": 3025714,
+  "source_populated_places": 33387,
+  "administrative_context_places": 327,
+  "country_records": 1,
+  "total_places": 33715,
+  "place_type_counts": {
+    "city": 56,
+    "country": 1,
+    "county": 85,
+    "district": 233,
+    "hamlet": 9884,
+    "locality": 1568,
+    "neighborhood": 8579,
+    "region": 9,
+    "town": 1001,
+    "village": 12299
+  },
+  "source_local_type_counts": {
+    "City": 56,
+    "Hamlet": 9884,
+    "Other Settlement": 1568,
+    "Suburban Area": 8579,
+    "Town": 1001,
+    "Village": 12299
+  },
+  "admin_type_counts": {
+    "county": 85,
+    "district": 233,
+    "region": 9
+  },
+  "alternate_name_count": 26,
+  "duplicate_source_rows_skipped": 0,
+  "skipped": {},
+  "duplicate_name_type_groups_retained": 1958,
+  "source_download_url": "https://api.os.uk/downloads/v1/products/OpenNames/downloads?area=GB&format=CSV&redirect",
+  "source_page_url": "https://www.data.gov.uk/dataset/1c58a0c6-43e2-4e36-9b17-239f0aebf4e5/os-open-names",
+  "source_vintage": "2026-07",
+  "validation_checks": [
+    "Top-level key order matches the template",
+    "Manifest identity matches BelongWhere v1.2.0",
+    "Every manifest count equals its array length",
+    "Every place_id is a unique valid UUID",
+    "Every place matches the exact template shape and coordinate rules",
+    "Later-wave arrays are empty by design",
+    "Non-curated source count plausibility threshold passed",
+    "JSON round-trip parse passed and contains no em dash"
+  ],
+  "json_sha256": "b3dd49d21f82d1d52f796af111296411e3ba5e63047aa069d8c0525ba07aa40b",
+  "files": {
+    "json": "England_BelongWhere_Layer1_Package_v1.2.0.json",
+    "qa": "England_BelongWhere_Layer1_Package_v1.2.0_QA.md",
+    "checksum": "England_BelongWhere_Layer1_Package_v1.2.0_SHA256.txt",
+    "zip": "England_BelongWhere_Layer1_Package_v1.2.0.zip"
+  },
+  "file_sizes": {
+    "England_BelongWhere_Layer1_Package_v1.2.0.json": 13579758,
+    "England_BelongWhere_Layer1_Package_v1.2.0_QA.md": 4491,
+    "England_BelongWhere_Layer1_Package_v1.2.0_SHA256.txt": 113,
+    "England_BelongWhere_Layer1_Package_v1.2.0.zip": 1582558
+  }
+}
