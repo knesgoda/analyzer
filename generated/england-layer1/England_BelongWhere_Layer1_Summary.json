@@ -1,52 +1,114 @@
 {
-  "rows_scanned": 3025714,
-  "source_populated_places": 33387,
-  "administrative_context_places": 327,
-  "country_records": 1,
-  "total_places": 33715,
+  "total_places": 78978,
   "place_type_counts": {
-    "city": 56,
+    "built_up_area": 8477,
+    "city": 45,
+    "civil_parish": 11586,
     "country": 1,
-    "county": 85,
-    "district": 233,
-    "hamlet": 9884,
-    "locality": 1568,
-    "neighborhood": 8579,
+    "county": 27,
+    "electoral_division": 1475,
+    "hamlet": 9859,
+    "historic_county": 39,
+    "lieutenancy_area": 48,
+    "locality": 19060,
+    "london_borough": 33,
+    "metropolitan_district": 36,
+    "national_park": 10,
+    "neighborhood": 8566,
+    "non_metropolitan_district": 164,
     "region": 9,
-    "town": 1001,
-    "village": 12299
+    "town": 885,
+    "unitary_authority": 64,
+    "village": 11535,
+    "ward": 7059
   },
-  "source_local_type_counts": {
-    "City": 56,
-    "Hamlet": 9884,
-    "Other Settlement": 1568,
-    "Suburban Area": 8579,
-    "Town": 1001,
-    "Village": 12299
+  "duplicate_name_and_type_groups_retained": 5864,
+  "ons_ipn": {
+    "rows": 86267,
+    "unique_places": 74570,
+    "descriptor_row_counts": {
+      "BUA": 8479,
+      "CED": 1988,
+      "CTY": 39,
+      "CTYHIST": 40,
+      "CTYLT": 48,
+      "LOC": 49701,
+      "LONB": 119,
+      "MD": 190,
+      "NMD": 728,
+      "NPARK": 18,
+      "PAR": 15292,
+      "RGN": 9,
+      "UA": 353,
+      "WD": 9263
+    },
+    "descriptor_place_counts": {
+      "BUA": 8477,
+      "CED": 1475,
+      "CTY": 27,
+      "CTYHIST": 39,
+      "CTYLT": 48,
+      "LOC": 45543,
+      "LONB": 33,
+      "MD": 36,
+      "NMD": 164,
+      "NPARK": 10,
+      "PAR": 11586,
+      "RGN": 9,
+      "UA": 64,
+      "WD": 7059
+    },
+    "split_identity_groups": 9662,
+    "multiple_name_identity_groups": 3885,
+    "alternate_name_values": 3911,
+    "derived_coordinate_counts": {
+      "CTY": 27,
+      "CTYHIST": 39,
+      "CTYLT": 48,
+      "RGN": 9
+    }
   },
-  "admin_type_counts": {
-    "county": 85,
-    "district": 233,
-    "region": 9
+  "os_open_names": {
+    "rows_scanned": 3025714,
+    "populated_places": 33387,
+    "local_type_counts": {
+      "City": 56,
+      "Hamlet": 9884,
+      "Other Settlement": 1568,
+      "Suburban Area": 8579,
+      "Town": 1001,
+      "Village": 12299
+    },
+    "skipped": {}
   },
-  "alternate_name_count": 26,
-  "duplicate_source_rows_skipped": 0,
-  "skipped": {},
-  "duplicate_name_type_groups_retained": 1958,
-  "source_download_url": "https://api.os.uk/downloads/v1/products/OpenNames/downloads?area=GB&format=CSV&redirect",
-  "source_page_url": "https://www.data.gov.uk/dataset/1c58a0c6-43e2-4e36-9b17-239f0aebf4e5/os-open-names",
-  "source_vintage": "2026-07",
+  "cross_source_merge": {
+    "matched_to_ons": 28980,
+    "matched_to_ons_localities": 28065,
+    "matched_to_ons_built_up_areas": 915,
+    "ambiguous_same_name_matches_retained_as_distinct": 54,
+    "unmatched_os_additions": 4407,
+    "refined_ons_locality_types": {
+      "city": 42,
+      "hamlet": 8488,
+      "locality": 2,
+      "neighborhood": 7320,
+      "town": 831,
+      "village": 10187
+    },
+    "match_distance_km_max": 4.9997,
+    "match_distance_km_mean": 0.1819
+  },
   "validation_checks": [
-    "Top-level key order matches the template",
-    "Manifest identity matches BelongWhere v1.2.0",
+    "Top-level key order matches the v1.2.0 template",
+    "Manifest contract identity and Layer 3 metadata are exact",
     "Every manifest count equals its array length",
     "Every place_id is a unique valid UUID",
-    "Every place matches the exact template shape and coordinate rules",
-    "Later-wave arrays are empty by design",
-    "Non-curated source count plausibility threshold passed",
+    "Every place matches the exact template shape and England coordinate bounds",
+    "Both official source-universe plausibility thresholds passed",
+    "All later-wave arrays are empty by design",
     "JSON round-trip parse passed and contains no em dash"
   ],
-  "json_sha256": "b3dd49d21f82d1d52f796af111296411e3ba5e63047aa069d8c0525ba07aa40b",
+  "json_sha256": "7821d949f279a2c26df4e8395d0f4395934abe3ca241da3f728c115a801b3a77",
   "files": {
     "json": "England_BelongWhere_Layer1_Package_v1.2.0.json",
     "qa": "England_BelongWhere_Layer1_Package_v1.2.0_QA.md",
@@ -54,9 +116,9 @@
     "zip": "England_BelongWhere_Layer1_Package_v1.2.0.zip"
   },
   "file_sizes": {
-    "England_BelongWhere_Layer1_Package_v1.2.0.json": 13579758,
-    "England_BelongWhere_Layer1_Package_v1.2.0_QA.md": 4491,
+    "England_BelongWhere_Layer1_Package_v1.2.0.json": 32000628,
+    "England_BelongWhere_Layer1_Package_v1.2.0_QA.md": 4066,
     "England_BelongWhere_Layer1_Package_v1.2.0_SHA256.txt": 113,
-    "England_BelongWhere_Layer1_Package_v1.2.0.zip": 1582558
+    "England_BelongWhere_Layer1_Package_v1.2.0.zip": 3682525
   }
 }
