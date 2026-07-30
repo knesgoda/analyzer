@@ -68,12 +68,13 @@ def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
             continue
         if not valid_coord(lat, lon):
             continue
-        for field in ("cty23cd", "cty23nm", "ctyhistnm", "ctyltnm", "rgn23cd", "rgn23nm"):
+        for field in (
+            "cty23cd", "cty23nm", "ctyhistnm", "ctyltnm",
+            "rgn23cd", "rgn23nm", "lad23nm",
+        ):
             value = norm(row.get(field))
             if value:
                 contexts[(field, value)].add(lat, lon)
-                if field == "ctyltnm" and value == "city of london":
-                    contexts[(field, "city and county of the city of london")].add(lat, lon)
 
     places: list[dict[str, Any]] = []
     descriptor_places = Counter()
@@ -127,6 +128,8 @@ def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
                 keys.append(("ctyhistnm", norm(name)))
             elif desc == "CTYLT":
                 keys.append(("ctyltnm", norm(name)))
+                if norm(name) == "city and county of the city of london":
+                    keys.append(("lad23nm", "city of london"))
             found = None
             for key in keys:
                 if key[1] and key in contexts and contexts[key].count:
