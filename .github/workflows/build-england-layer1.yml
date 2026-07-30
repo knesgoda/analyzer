@@ -24,23 +24,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Inspect official ONS IPN source
-        run: python scripts/inspect_ipn_source.py
-
-      - name: Inspect official ONS IPN archive
-        run: python scripts/inspect_ipn_archive.py
-
-      - name: Profile England IPN descriptors
-        run: python scripts/analyze_ipn_england.py
-
-      - name: Analyze canonical IPN identities
-        run: python scripts/analyze_ipn_identity.py
-
       - name: Install coordinate conversion dependency
         run: python -m pip install --disable-pip-version-check pyproj==3.7.1
 
-      - name: Build and validate package
-        run: python scripts/run_england_layer1.py
+      - name: Build, reconcile, and validate full England package
+        run: python scripts/england_full/main.py
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
