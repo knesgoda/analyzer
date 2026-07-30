@@ -72,6 +72,8 @@ def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
             value = norm(row.get(field))
             if value:
                 contexts[(field, value)].add(lat, lon)
+                if field == "ctyltnm" and value == "city of london":
+                    contexts[(field, "city and county of the city of london")].add(lat, lon)
 
     places: list[dict[str, Any]] = []
     descriptor_places = Counter()
