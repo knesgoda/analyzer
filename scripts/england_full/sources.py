@@ -25,6 +25,24 @@ from common import (
 )
 
 
+def choose_canonical_name(rows: list[dict[str, str]]) -> tuple[str, int]:
+    all_names = [safe_text(row.get("place23nm")) for row in rows]
+    all_names = [name for name in all_names if name]
+    if not all_names:
+        raise RuntimeError("ONS IPN identity has no place name")
+    unique_names = set(all_names)
+    primary_names = [
+        safe_text(row.get("place23nm"))
+        for row in rows
+        if safe_text(row.get("splitind")) == "0" and safe_text(row.get("place23nm"))
+    ]
+    candidates = primary_names or all_names
+    counts = Counter(candidates)
+    highest = max(counts.values())
+    name = sorted((item for item, count in counts.items() if count == highest), key=norm)[0]
+    return name, max(0, len(unique_names) - 1)
+
+
 def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     with zipfile.ZipFile(IPN_ZIP) as archive:
         raw = archive.read("IPN_GB_2024.csv")
@@ -58,16 +76,20 @@ def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     places: list[dict[str, Any]] = []
     descriptor_places = Counter()
     split_groups = 0
+    multi_name_groups = 0
+    alternate_name_values = 0
     derived_coordinates = Counter()
     unresolved: list[dict[str, str]] = []
 
     for placeid, rows in groups.items():
         descs = {safe_text(row.get("descnm")) for row in rows}
-        names = {safe_text(row.get("place23nm")) for row in rows}
-        if len(descs) != 1 or len(names) != 1:
-            raise RuntimeError(f"ONS placeid {placeid} has inconsistent identity")
+        if len(descs) != 1:
+            raise RuntimeError(f"ONS placeid {placeid} spans multiple descriptors: {sorted(descs)}")
         desc = next(iter(descs))
-        name = next(iter(names))
+        name, alternate_count = choose_canonical_name(rows)
+        if alternate_count:
+            multi_name_groups += 1
+            alternate_name_values += alternate_count
         if desc not in IPN_TYPE_MAP:
             raise RuntimeError(f"Unknown ONS descriptor {desc}")
         descriptor_places[desc] += 1
@@ -142,6 +164,8 @@ def read_ipn() -> tuple[list[dict[str, Any]], dict[str, Any]]:
         "descriptor_row_counts": dict(sorted(descriptor_rows.items())),
         "descriptor_place_counts": dict(sorted(descriptor_places.items())),
         "split_identity_groups": split_groups,
+        "multiple_name_identity_groups": multi_name_groups,
+        "alternate_name_values": alternate_name_values,
         "derived_coordinate_counts": dict(sorted(derived_coordinates.items())),
     }
 
